@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'dart:math';
+import 'package:google_fonts/google_fonts.dart';
 
 class PhotoPuzzleApp extends StatefulWidget {
   @override
@@ -143,17 +144,36 @@ class _PhotoPuzzleAppState extends State<PhotoPuzzleApp> {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
+          seedColor: const Color(0xFF6B9DFF),
           brightness: Brightness.light,
         ),
+        textTheme: GoogleFonts.poppinsTextTheme(),
       ),
       home: CupertinoPageScaffold(
+        backgroundColor: const Color(0xFFF8F9FD),
         navigationBar: CupertinoNavigationBar(
-          middle: Text('Photo Puzzle'),
-          trailing: CupertinoButton(
-            padding: EdgeInsets.zero,
-            child: Icon(CupertinoIcons.camera),
-            onPressed: _showImageSourceDialog,
+          backgroundColor: Colors.white.withOpacity(0.8),
+          middle: Text(
+            'Photo Puzzle',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF2D3142),
+            ),
+          ),
+          trailing: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFF6B9DFF),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: CupertinoButton(
+              padding: const EdgeInsets.all(8),
+              child: Icon(
+                CupertinoIcons.camera,
+                color: Colors.white,
+                size: 20,
+              ),
+              onPressed: _showImageSourceDialog,
+            ),
           ),
         ),
         child: SafeArea(
@@ -162,39 +182,115 @@ class _PhotoPuzzleAppState extends State<PhotoPuzzleApp> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (selectedImage == null)
-                  CupertinoButton(
-                    child: Text('Select a Photo to Start'),
-                    onPressed: _showImageSourceDialog,
+                  Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE8EEFF),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Icon(
+                          CupertinoIcons.photo,
+                          size: 48,
+                          color: const Color(0xFF6B9DFF),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        'Start Your Puzzle',
+                        style: GoogleFonts.poppins(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF2D3142),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Choose a photo to begin the game',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          color: const Color(0xFF9094A6),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      CupertinoButton(
+                        color: const Color(0xFF6B9DFF),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Text(
+                          'Select Photo',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        onPressed: _showImageSourceDialog,
+                      ),
+                    ],
                   )
                 else
-                  Container(
-                    width: 300,
-                    height: 300,
-                    child: GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: gridSize,
+                  Column(
+                    children: [
+                      Container(
+                        width: 300,
+                        height: 300,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: GridView.builder(
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: gridSize,
+                            ),
+                            itemCount: tiles.length,
+                            itemBuilder: (context, index) {
+                              return DragTarget<int>(
+                                onWillAccept: (data) => true,
+                                onAccept: (_) => _onTileAccept(index),
+                                builder: (context, candidateData, rejectedData) {
+                                  return Draggable<int>(
+                                    data: index,
+                                    feedback: _buildTile(index, size: 100),
+                                    childWhenDragging: Container(
+                                      margin: EdgeInsets.all(1),
+                                      color: Colors.grey.withOpacity(0.3),
+                                    ),
+                                    onDragStarted: () => _onTileDragStart(index),
+                                    onDragEnd: _onTileDragEnd,
+                                    child: _buildTile(index),
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                        ),
                       ),
-                      itemCount: tiles.length,
-                      itemBuilder: (context, index) {
-                        return DragTarget<int>(
-                          onWillAccept: (data) => true,
-                          onAccept: (_) => _onTileAccept(index),
-                          builder: (context, candidateData, rejectedData) {
-                            return Draggable<int>(
-                              data: index,
-                              feedback: _buildTile(index, size: 100),
-                              childWhenDragging: Container(
-                                margin: EdgeInsets.all(1),
-                                color: Colors.grey.withOpacity(0.3),
+                      const SizedBox(height: 24),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CupertinoButton(
+                            color: const Color(0xFFE8EEFF),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Text(
+                              'New Game',
+                              style: GoogleFonts.poppins(
+                                color: const Color(0xFF6B9DFF),
+                                fontWeight: FontWeight.w500,
                               ),
-                              onDragStarted: () => _onTileDragStart(index),
-                              onDragEnd: _onTileDragEnd,
-                              child: _buildTile(index),
-                            );
-                          },
-                        );
-                      },
-                    ),
+                            ),
+                            onPressed: _showImageSourceDialog,
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
               ],
             ),
